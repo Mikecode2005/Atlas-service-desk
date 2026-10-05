@@ -17,5 +17,7 @@ export default async function TechnicianPage({
       </main>
     );
   }
-  return <TechnicianBoard data={result.data} technicianId={technicianId} />;
+  // result.ok guarantees data is present
+  const data = result.data as import("@/lib/view").BoardData;
+  return <TechnicianBoard data={data} technicianId={technicianId} />;
 }
