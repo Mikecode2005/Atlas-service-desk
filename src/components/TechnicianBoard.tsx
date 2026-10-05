@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { startTransition, useTransition } from "react";
 import type { BoardData, RequestDTO } from "@/lib/view";
-import { nextAction, statusLabel, fmtDateTime, RAIL } from "@/lib/view";
-import { PriorityChip, StatusChip, btnPrimary, fieldClass } from "./ui";
+import { nextAction, statusLabel } from "@/lib/view";
+import { fmtDateTime } from "@/lib/format";
+import { PriorityChip, StatusChip, btnPrimary, fieldClass, RAIL } from "./ui";
 import { StatusTransitionDialog } from "./StatusTransitionDialog";
 
 interface TechnicianBoardProps {
