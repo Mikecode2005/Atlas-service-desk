@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Customer {
+  id       String    @id
+  name     String
+  requests Request[]
+}
+
+model Technician {
+  id       String    @id
+  name     String
+  active   Boolean   @default(true)
+  requests Request[]
+}
+
+model Request {
+  id             String      @id
+  customerId     String
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  channel        String
+  message        String
+  receivedAt     DateTime
+
+  // Triage output (deterministic rules, see src/lib/triage.ts)
+  category       String      @default("general")
+  intent         String      @default("fault")
+  priority       String
+  priorityReason String
+  missingInfo    String      @default("[]") // JSON array of strings
+  status         String
+
+  technicianId   String?
+  technician     Technician? @relation(fields: [technicianId], references: [id])
+  scheduledFor   DateTime?
+
+  // Duplicate handling: a suggestion is only a hint until the coordinator links it
+  duplicateOfId        String?
+  duplicateOf          Request?  @relation("Duplicates", fields: [duplicateOfId], references: [id])
+  duplicates           Request[] @relation("Duplicates")
+  duplicateSuggestedId String?
+  duplicateReason      String?
+
+  events         RequestEvent[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model RequestEvent {
+  id          Int      @id @default(autoincrement())
+  requestId   String
+  request     Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  type        String
+  description String
+  createdAt   DateTime
+}
