@@ -21,6 +21,15 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   }
 }
 
+async function runRead<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
+  try {
+    const data = await fn();
+    return { ok: true, data };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Something went wrong" };
+  }
+}
+
 export async function createRequestAction(input: { customerId: string; channel: string; message: string; receivedAt?: string }) {
   return run(async () => {
     const agg = await prisma.requestEvent.aggregate({ _max: { createdAt: true } });
@@ -62,7 +71,7 @@ export async function customerUpdateAction(id: string) {
 }
 
 export async function myRequestsAction(technicianId: string): Promise<ActionResult<BoardData>> {
-  return run(async () => {
+  return runRead(async () => {
     const board = await service.loadBoard(prisma);
     const filteredRequests = board.requests.filter(
       (r) => r.technicianId === technicianId && r.status !== "CLOSED" && !r.duplicateOfId
